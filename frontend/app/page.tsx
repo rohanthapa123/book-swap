@@ -1,5 +1,7 @@
 "use client"
 import { getBookApi } from "@/api/book"
+import GenreSections from "@/components/sections/genre-sections"
+import RecommendationsSection from "@/components/sections/recommendations-section"
 import { Button } from "@/components/ui/button"
 import useAuthStore from "@/store/useAuthStore"
 import { useQuery } from "@tanstack/react-query"
@@ -54,6 +56,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Recommendations Section */}
+      {isAuthenticated && <RecommendationsSection />}
+
+      {/* Genre-based Sections */}
+      {/* {isAuthenticated && <GenreSections />} */}
 
       {/* How It Works */}
       <section className="py-16">

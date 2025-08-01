@@ -94,7 +94,7 @@ export default function BookDetailPage() {
         <div className="md:col-span-1">
           <Card className="overflow-hidden">
             <div className="aspect-[2/2] bg-amber-100">
-              <img src={image ? `${process.env.NEXT_PUBLIC_BACKEND_HOST}${image}` : "/placeholder.svg"} alt={title} className="h-full w-full object-cover" />
+              <img src={image ? `${process.env.NEXT_PUBLIC_BACKEND_HOST}${image}` : "/placeholder.svg"} alt={title} className="h-full w-full object-cover" crossOrigin="use-credentials" />
             </div>
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2 text-gray-600">

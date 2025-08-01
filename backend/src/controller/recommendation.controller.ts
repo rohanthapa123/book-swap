@@ -27,34 +27,5 @@ export class RecommendationsController {
         }
     };
 
-    getLocationBasedRecommendations = async (req: Request, res: Response) => {
-
-        const userId = (req as any).user.id;
-
-        try {
-            const recommendations = await this.recommendationService.getLocationBasedRecommendations(userId);
-            res.status(200).json({ data: recommendations });
-        } catch (error: any) {
-            logger.error('FindAll Error:', error.message);
-            res
-                .status(500)
-                .json({ message: 'Failed to retrieve recommendations', error: error.message });
-        }
-    };
-
-    getHybridRecommendations = async (req: Request, res: Response) => {
-
-        const userId = (req as any).user.id;
-
-        try {
-            const recommendations = await this.recommendationService.getHybridRecommendations(userId);
-            res.status(200).json({ data: recommendations });
-        } catch (error: any) {
-            logger.error('FindAll Error:', error.message);
-            res
-                .status(500)
-                .json({ message: 'Failed to retrieve recommendations', error: error.message });
-        }
-    };
 
 }

@@ -27,7 +27,7 @@ export class SwapRequest {
   bookRequested!: Book;
 
   @Column({ default: 'pending' })
-  status!: 'pending' | 'accepted' | 'rejected';
+  status!: 'pending' | 'accepted' | 'rejected' | 'cancelled';
 
   @Column()
   message!: string;

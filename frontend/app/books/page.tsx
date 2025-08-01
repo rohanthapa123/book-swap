@@ -107,6 +107,7 @@ export default function BooksPage() {
                   src={book.image ? `${process.env.NEXT_PUBLIC_BACKEND_HOST}${book.image}` : "/placeholder.svg"}
                   alt={book.title}
                   className="h-full w-full object-cover"
+                  crossOrigin="use-credentials"
                 />
               </div>
               <CardHeader className="p-4 pb-0">

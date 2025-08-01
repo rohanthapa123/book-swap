@@ -71,10 +71,14 @@ app.use(
 
       if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
       }
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
       if (filePath.endsWith('.svg')) {
         res.setHeader('Content-Type', 'image/svg+xml');
+      }
+      if (filePath.endsWith('.png')) {
+        res.setHeader('Content-Type', 'image/png');
       }
     },
   }),

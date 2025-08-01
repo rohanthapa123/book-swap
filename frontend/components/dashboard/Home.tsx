@@ -11,6 +11,7 @@ import useAuthStore from "@/store/useAuthStore"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Book } from "@/app/page"
+import Image from "next/image"
 
 export const DashboardHome = () => {
     // In a real app, this data would come from your API
@@ -142,6 +143,7 @@ export const DashboardHome = () => {
                                     <img
                                         src={book?.coverUrl || "/placeholder.svg"}
                                         alt={book?.title}
+                                        crossOrigin="use-credentials"
                                         className="h-full w-full object-cover"
                                     />
                                 </div>
@@ -201,6 +203,7 @@ export const DashboardHome = () => {
                                                 <img
                                                     src={request.bookCoverUrl || "/placeholder.svg"}
                                                     alt={request.bookTitle}
+                                                    crossOrigin="use-credentials"
                                                     className="h-full w-full object-cover"
                                                 />
                                             </div>
@@ -262,9 +265,10 @@ export const DashboardHome = () => {
                         {isLoading ? <>Loading...</> : isError ? <>Error...</> : data.map((book: Book) => (
                             <Card key={book.id} className="overflow-hidden">
                                 <div className="aspect-[2/2] bg-amber-100">
-                                    <img
+                                    <Image
                                         src={book.image ? `${process.env.NEXT_PUBLIC_BACKEND_HOST}${book.image}` : "/placeholder.svg"}
                                         alt={book.title}
+                                        crossOrigin="use-credentials"
                                         className="h-full w-full object-cover"
                                     />
                                 </div>

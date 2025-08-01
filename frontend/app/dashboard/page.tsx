@@ -11,6 +11,7 @@ import useAuthStore from "@/store/useAuthStore"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Book } from "@/app/page"
+import { useBooks, useSwaps, useUsers } from "@/lib/queries"
 
 export default function DashboardHome() {
   // In a real app, this data would come from your API
@@ -33,6 +34,12 @@ export default function DashboardHome() {
     select: (res) => res.data
   })
 
+
+  const { data: allBooksData, isLoading: booksLoading } = useBooks()
+  const { data: usersData, isLoading: usersLoading } = useUsers()
+  const { data: swapsData, isLoading: swapsLoading } = useSwaps()
+
+  console.log(allBooksData, usersData, swapsData)
 
 
   return (
@@ -138,6 +145,7 @@ export default function DashboardHome() {
                   <img
                     src={book.image ? `${process.env.NEXT_PUBLIC_BACKEND_HOST}${book.image}` : "/placeholder.svg"}
                     alt={book?.title}
+                    crossOrigin="use-credentials"
                     className="h-full w-full object-cover"
                   />
                 </div>
@@ -188,8 +196,8 @@ export default function DashboardHome() {
 
           {/* Requests List */}
           <div className="space-y-4">
-            {swapRequests.length > 0 ? (
-              swapRequests.map((request) => (
+            {swapsData && Array.isArray(swapsData) && swapsData?.length > 0 ? (
+              swapsData?.map((request) => (
                 <Card key={request.id} className="overflow-hidden">
                   <div className="flex flex-col p-4 sm:flex-row sm:items-center">
                     <div className="mb-4 flex sm:mb-0 sm:mr-4">
@@ -288,104 +296,4 @@ export default function DashboardHome() {
   )
 }
 
-// Sample user books
-const userBooks = [
-  {
-    id: 101,
-    title: "The Alchemist",
-    author: "Paulo Coelho",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-    status: "approved",
-  },
-  {
-    id: 102,
-    title: "Dune",
-    author: "Frank Herbert",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-    status: "approved",
-  },
-  {
-    id: 103,
-    title: "The Catcher in the Rye",
-    author: "J.D. Salinger",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-    status: "approved",
-  },
-  {
-    id: 104,
-    title: "The Midnight Library",
-    author: "Matt Haig",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-    status: "pending",
-  },
-  {
-    id: 105,
-    title: "Educated",
-    author: "Tara Westover",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-    status: "approved",
-  },
-]
 
-// Sample swap requests
-const swapRequests = [
-  {
-    id: 201,
-    type: "incoming",
-    bookTitle: "The Great Gatsby",
-    bookAuthor: "F. Scott Fitzgerald",
-    bookCoverUrl: "/placeholder.svg?height=100&width=70",
-    otherUser: "Sarah Johnson",
-    date: "2023-05-15",
-  },
-  {
-    id: 202,
-    type: "outgoing",
-    bookTitle: "To Kill a Mockingbird",
-    bookAuthor: "Harper Lee",
-    bookCoverUrl: "/placeholder.svg?height=100&width=70",
-    otherUser: "Michael Chen",
-    date: "2023-05-12",
-  },
-  {
-    id: 203,
-    type: "incoming",
-    bookTitle: "1984",
-    bookAuthor: "George Orwell",
-    bookCoverUrl: "/placeholder.svg?height=100&width=70",
-    otherUser: "Emma Williams",
-    date: "2023-05-10",
-  },
-]
-
-// Sample recommended books
-const recommendedBooks = [
-  {
-    id: 3,
-    title: "1984",
-    author: "George Orwell",
-    genre: "Dystopian",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-  },
-  {
-    id: 7,
-    title: "The Silent Patient",
-    author: "Alex Michaelides",
-    genre: "Mystery",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-  },
-  {
-    id: 8,
-    title: "Sapiens",
-    author: "Yuval Noah Harari",
-    genre: "Non-Fiction",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-  },
-  {
-    id: 5,
-    title: "The Hobbit",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasy",
-    coverUrl: "/placeholder.svg?height=200&width=150",
-  },
-]

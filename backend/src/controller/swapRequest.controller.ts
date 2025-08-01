@@ -20,7 +20,7 @@ export class SwapRequestController {
         }
     };
 
-    findAll = async (req: Request, res: Response) => {
+    findAll = async (_req: Request, res: Response) => {
         try {
             const requests = await this.swapRequestService.findAll();
             res.status(200).json({ data: requests });
@@ -61,6 +61,42 @@ export class SwapRequestController {
         } catch (error: any) {
             logger.error('Delete Swap Request Error:', error.message);
             res.status(500).json({ message: 'Failed to delete swap request', error: error.message });
+        }
+    };
+
+    // ✅ Accept Swap Request
+    accept = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            const result = await this.swapRequestService.updateStatus(id, 'accepted');
+            res.status(200).json({ message: 'Swap request accepted', data: result });
+        } catch (error: any) {
+            logger.error('Accept Swap Request Error:', error.message);
+            res.status(500).json({ message: 'Failed to accept swap request', error: error.message });
+        }
+    };
+
+    // ❌ Reject Swap Request
+    reject = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            const result = await this.swapRequestService.updateStatus(id, 'rejected');
+            res.status(200).json({ message: 'Swap request rejected', data: result });
+        } catch (error: any) {
+            logger.error('Reject Swap Request Error:', error.message);
+            res.status(500).json({ message: 'Failed to reject swap request', error: error.message });
+        }
+    };
+
+    // 🔁 Cancel Swap Request
+    cancel = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            const result = await this.swapRequestService.updateStatus(id, 'cancelled');
+            res.status(200).json({ message: 'Swap request cancelled', data: result });
+        } catch (error: any) {
+            logger.error('Cancel Swap Request Error:', error.message);
+            res.status(500).json({ message: 'Failed to cancel swap request', error: error.message });
         }
     };
 }

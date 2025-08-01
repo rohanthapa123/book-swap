@@ -14,10 +14,19 @@ router.get('/', authenticate, controller.findAll);
 // 🔍 Get one by ID
 router.get('/:id', authenticate, controller.findById);
 
-// ✅ Update status (approve/reject by admin)
-router.put('/:id/status', authenticate, controller.update);
+// ✅ Approve / accept a request (typically admin or recipient)
+router.post('/:id/accept', authenticate, controller.accept);
 
-// ❌ Delete a request
+// ❌ Reject a request (typically admin or recipient)
+router.post('/:id/reject', authenticate, controller.reject);
+
+// ↩️ Cancel / withdraw (typically the requester themselves)
+router.post('/:id/cancel', authenticate, controller.cancel);
+
+// 🔧 Generic status update (can be kept if you need flexible status setting)
+router.patch('/:id/status', authenticate, controller.update);
+
+// 🗑️ Delete a request
 router.delete('/:id', authenticate, controller.delete);
 
 export { router as swapRequestRouter };
