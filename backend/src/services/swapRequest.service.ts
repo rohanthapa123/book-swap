@@ -1,19 +1,49 @@
 import { SwapRequest } from '../entity/SwapRequest';
+import { BookRepository } from '../repository/book.repository';
 import { SwapRequestRepository } from '../repository/swapRequest.repository';
 
 export class SwapRequestService {
   private swapRepo: SwapRequestRepository;
+  private bookRepo: BookRepository;
 
   constructor() {
     this.swapRepo = new SwapRequestRepository();
+    this.bookRepo = new BookRepository();
   }
 
-  async create(data: Partial<SwapRequest>): Promise<SwapRequest> {
-    return this.swapRepo.create(data);
+  async create(
+    data: { bookId: string; offeredBookId: string; message: string },
+    requesterId: string
+  ): Promise<SwapRequest> {
+    // Find requested book with owner
+    const requestedBook = await this.bookRepo.findById(data.bookId);
+    if (!requestedBook) throw new Error('Requested book not found');
+
+    // Find offered book with owner
+    const offeredBook = await this.bookRepo.findById(data.offeredBookId);
+    if (!offeredBook) throw new Error('Offered book not found');
+
+    // Create swap request entity
+    const swapRequest = await this.swapRepo.create({
+      message: data.message,
+      requester: offeredBook.owner, // set requester as user id
+      receiver: offeredBook.owner,   // receiver is owner of offered book
+      bookRequested: requestedBook,
+      bookOffered: offeredBook,
+      status: 'pending',  // or whatever default status you want
+    });
+
+    // Save and return
+    return await this.swapRepo.create(swapRequest);
   }
+
 
   async findAll(): Promise<SwapRequest[]> {
     return this.swapRepo.findAll();
+  }
+
+  async findAllRelatedToMe(id: string): Promise<SwapRequest[]> {
+    return this.swapRepo.findAllRelatedToMe(id);
   }
 
   async findById(id: string): Promise<SwapRequest> {

@@ -12,7 +12,8 @@ export class SwapRequestController {
     create = async (req: Request, res: Response) => {
         try {
             const data = req.body;
-            const newRequest = await this.swapRequestService.create(data);
+            const requesterId = (req as any)?.user?.id;
+            const newRequest = await this.swapRequestService.create(data, requesterId);
             res.status(201).json({ message: 'Swap request created successfully', data: newRequest });
         } catch (error: any) {
             logger.error('Create Swap Request Error:', error.message);
@@ -23,6 +24,17 @@ export class SwapRequestController {
     findAll = async (_req: Request, res: Response) => {
         try {
             const requests = await this.swapRequestService.findAll();
+            res.status(200).json({ data: requests });
+        } catch (error: any) {
+            logger.error('Find All Swap Requests Error:', error.message);
+            res.status(500).json({ message: 'Failed to retrieve swap requests', error: error.message });
+        }
+    };
+
+    findAllRelatedToMe = async (_req: Request, res: Response) => {
+        try {
+            const id = (_req as any)?.user?.id;
+            const requests = await this.swapRequestService.findAllRelatedToMe(id);
             res.status(200).json({ data: requests });
         } catch (error: any) {
             logger.error('Find All Swap Requests Error:', error.message);

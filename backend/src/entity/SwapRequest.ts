@@ -5,6 +5,9 @@ import {
   ManyToOne,
   BeforeInsert,
   BeforeUpdate,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Book } from './Book';
 import { Users } from './User';
@@ -32,21 +35,17 @@ export class SwapRequest {
   @Column()
   message!: string;
 
-  @Column()
+  @OneToMany(() => SwapRequest, swap => swap.bookOffered)
+  swapsOffered?: SwapRequest[];
+
+  @OneToMany(() => SwapRequest, swap => swap.bookRequested)
+  swapsRequested?: SwapRequest[];
+
+
+  @CreateDateColumn()
   createdAt!: Date;
 
-  @Column()
+  @UpdateDateColumn()
   updatedAt!: Date;
 
-  @BeforeInsert()
-  setCreationDate() {
-    const now = new Date();
-    this.createdAt = now;
-    this.updatedAt = now;
-  }
-
-  @BeforeUpdate()
-  setUpdateDate() {
-    this.updatedAt = new Date();
-  }
 }

@@ -81,6 +81,9 @@ export default function LoginPage() {
       if (!data.data.preferences || data.data.preferences.length === 0) {
         setShowDialog(true)
       } else {
+        if (data.data.admin === true) {
+          window.location.href = "/admin"
+        }
         window.location.href = "/"
       }
     },

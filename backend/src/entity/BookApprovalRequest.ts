@@ -1,27 +1,37 @@
-import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Book } from "./Book";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Book } from './Book';
+import { Users } from './User';
 
 @Entity()
 export class BookApprovalRequest {
-    @PrimaryGeneratedColumn('uuid')
-    id!: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-    @OneToOne(() => Book, (book) => book.approvalRequest)
-    @JoinColumn()
-    book!: Book;
+  @OneToOne(() => Book, (book) => book.approvalRequest)
+  @JoinColumn()
+  book!: Book;
 
+  @Column({ default: 'pending' })
+  status!: 'pending' | 'approved' | 'rejected';
 
-    @Column({ default: 'pending' })
-    status!: 'pending' | 'approved' | 'rejected';
+  @Column({ nullable: true, type: 'text' })
+  adminNote?: string;
+  // ✅ Link to admin who approved/rejected it
+  @ManyToOne(() => Users, { nullable: true })
+  approvedBy?: Users;
 
-    @Column({ nullable: true, type: 'text' })
-    adminNote?: string;
+  @CreateDateColumn()
+  requestedAt!: Date;
 
-    @Column()
-    requestedAt!: Date;
-
-    @BeforeInsert()
-    setRequestedAt() {
-        this.requestedAt = new Date();
-    }
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }

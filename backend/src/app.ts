@@ -57,7 +57,7 @@ const limiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per window
   message: 'Too many requests, please try again later.',
 });
-app.use(limiter);  // Apply rate limiting globally uncomment on production :)
+// app.use(limiter);  // Apply rate limiting globally uncomment on production :)
 
 // app.use('/uploads', express.static(path.resolve('uploads')));
 

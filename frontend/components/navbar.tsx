@@ -11,8 +11,9 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 
-export default function Navbar({ authenticated }: {
-  authenticated: boolean
+export default function Navbar({ authenticated, user }: {
+  authenticated: boolean,
+  user: any,
 }) {
   const logoutFn = useAuthStore((state) => state.logout);
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -33,7 +34,7 @@ export default function Navbar({ authenticated }: {
   console.log("authenticated", authenticated)
 
   // This would come from your auth context in a real app
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(user && user.admin)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -43,7 +44,7 @@ export default function Navbar({ authenticated }: {
     { name: "Home", href: "/" },
     { name: "Books", href: "/books" },
     { name: "How It Works", href: "/#how-it-works" },
-    { name: "About", href: "/about" },
+    // { name: "About", href: "/about" },
   ]
 
   const userLinks = authenticated
@@ -99,8 +100,9 @@ export default function Navbar({ authenticated }: {
               <DropdownMenuContent align="end">
                 {userLinks.map((link) => (
                   <DropdownMenuItem key={link.name} asChild>
-                    <Link href={link.href} onClick={() => {
+                    <Link href={link.href} onClick={(e) => {
                       if (link.name.toLowerCase() === "logout") {
+                        e.preventDefault();
                         logoutMutation.mutate()
                       } else {
                         setIsMenuOpen(false)

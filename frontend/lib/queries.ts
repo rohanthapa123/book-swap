@@ -78,6 +78,22 @@ export const useBooks = (
   })
 }
 
+export const useMineBooks = (
+  page = 1,
+  limit = 12,
+  options?: UseQueryOptions<PaginatedResponse<Book>, AxiosError>,
+) => {
+  return useQuery({
+    queryKey: ["mine"],
+    queryFn: async () => {
+      const response = await booksApi.getMine(page, limit)
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    ...options,
+  })
+}
+
 export const useBook = (id: string, options?: UseQueryOptions<Book, AxiosError>) => {
   return useQuery({
     queryKey: queryKeys.books.detail(id),
@@ -222,6 +238,58 @@ export const useSwaps = (
     ...options,
   })
 }
+// Swaps Queries
+export const useApproveSwap = (
+  options?: UseMutationOptions<ApiResponse<void>, AxiosError, { id: string; reason?: string }>
+
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const response = await swapsApi.approve(id)
+      return response.data
+    },
+    onSuccess: () => {
+    },
+    ...options,
+  })
+}
+
+export const useCancelSwap = (
+  options?: UseMutationOptions<ApiResponse<void>, AxiosError, { id: string; reason?: string }>
+
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
+      const response = await swapsApi.cancel(id)
+      return response.data
+    },
+    onSuccess: () => {
+    },
+    ...options,
+  })
+}
+
+export const useDeclineSwap = (
+  options?: UseMutationOptions<ApiResponse<void>, AxiosError, { id: string; reason?: string }>
+
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const response = await swapsApi.decline(id)
+      return response.data
+    },
+    onSuccess: () => {  
+    },
+    ...options,
+  })
+}
+
 
 export const useUserSwaps = (userId: string, options?: UseQueryOptions<SwapRequest[], AxiosError>) => {
   return useQuery({

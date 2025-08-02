@@ -72,6 +72,37 @@ export class BookController {
             res.status(500).json({ message: 'Failed to retrieve books', error: error.message });
         }
     };
+    findPending = async (req: Request, res: Response) => {
+        const limit = parseInt(req.query.limit as string) || 10;
+        const offset = parseInt(req.query.offset as string) || 0;
+
+        try {
+            const books = await this.bookService.findPending(limit, offset);
+
+            res.status(200).json({ data: books });
+        } catch (error: any) {
+            logger.error('Find All Books Error:', error.message);
+            res.status(500).json({ message: 'Failed to retrieve books', error: error.message });
+        }
+    };
+
+    // Get all books with pagination
+    findAllAuthenticate = async (req: Request, res: Response) => {
+
+        const userId = (req as any).user.id;
+
+        const limit = parseInt(req.query.limit as string) || 10;
+        const offset = parseInt(req.query.offset as string) || 0;
+
+        try {
+            const books = await this.bookService.findAllAuthenticate(limit, offset, userId);
+
+            res.status(200).json({ data: books });
+        } catch (error: any) {
+            logger.error('Find All Books Error:', error.message);
+            res.status(500).json({ message: 'Failed to retrieve books', error: error.message });
+        }
+    };
 
     // Get book by ID
     findById = async (req: Request, res: Response) => {
@@ -119,6 +150,29 @@ export class BookController {
         try {
             const id = req.params.id;
             await this.bookService.delete(id);
+            res.status(200).json({ message: 'Book deleted successfully' });
+        } catch (error: any) {
+            logger.error('Delete Book Error:', error.message);
+            res.status(500).json({ message: 'Failed to delete book', error: error.message });
+        }
+    };
+
+    // Delete book by ID
+    approve = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            await this.bookService.approve(id);
+            res.status(200).json({ message: 'Book deleted successfully' });
+        } catch (error: any) {
+            logger.error('Delete Book Error:', error.message);
+            res.status(500).json({ message: 'Failed to delete book', error: error.message });
+        }
+    };
+    // Delete book by ID
+    reject = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            await this.bookService.reject(id);
             res.status(200).json({ message: 'Book deleted successfully' });
         } catch (error: any) {
             logger.error('Delete Book Error:', error.message);

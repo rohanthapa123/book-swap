@@ -1,5 +1,5 @@
 "use client"
-import { getBookApi } from "@/api/book"
+import { getAuthenticatedBookApi, getBookApi } from "@/api/book"
 import GenreSections from "@/components/sections/genre-sections"
 import RecommendationsSection from "@/components/sections/recommendations-section"
 import { Button } from "@/components/ui/button"
@@ -28,7 +28,7 @@ export default function Home() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const { data, isLoading, isError } = useQuery({
-    queryFn: getBookApi,
+    queryFn: isAuthenticated ? getAuthenticatedBookApi : getBookApi ,
     queryKey: ["books"],
     select: (res) => res.data,
   })
@@ -115,6 +115,7 @@ export default function Home() {
                     src={book?.image ? `${process.env.NEXT_PUBLIC_BACKEND_HOST}${book?.image}` : "/placeholder.svg"}
                     alt={book?.title}
                     className="h-full w-full object-cover"
+                    crossOrigin="use-credentials"
                   />
                 </div>
                 <div className="p-4">

@@ -21,14 +21,17 @@ import {
 } from "@/components/ui/select"
 import { Search, BookOpen } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
-import { getBookApi } from "@/api/book"
+import { getAuthenticatedBookApi, getBookApi } from "@/api/book"
+import useAuthStore from "@/store/useAuthStore"
 
 export default function BooksPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [genre, setGenre] = useState("all")
 
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   const { data, isLoading, isError } = useQuery({
-    queryFn: getBookApi,
+    queryFn: isAuthenticated ? getAuthenticatedBookApi : getBookApi,
     queryKey: ["books"],
     select: (res) => res.data
   })

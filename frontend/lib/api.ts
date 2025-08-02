@@ -43,6 +43,10 @@ api.interceptors.response.use(
 export const booksApi = {
   getAll: (filters?: BookFilters, page = 1, limit = 12): Promise<AxiosResponse<PaginatedResponse<Book>>> =>
     api.get("/books", { params: { ...filters, page, limit } }),
+  getMine: (page = 1, limit = 12): Promise<AxiosResponse<PaginatedResponse<Book>>> =>
+    api.get("/books/authenticate", { params: { page, limit } }),
+  getPending: (filters?: BookFilters, page = 1, limit = 12): Promise<AxiosResponse<PaginatedResponse<Book>>> =>
+    api.get("/books/pending", { params: { ...filters, page, limit } }),
 
   getById: (id: string): Promise<AxiosResponse<ApiResponse<Book>>> => api.get(`/books/${id}`),
 
@@ -107,6 +111,10 @@ export const swapsApi = {
     api.put(`/swap-requests/${data.id}`, data),
 
   delete: (id: string): Promise<AxiosResponse<ApiResponse<void>>> => api.delete(`/swap-requests/${id}`),
+  
+  approve: (id: string): Promise<AxiosResponse<ApiResponse<void>>> => api.post(`/swap-requests/${id}/accept`),
+  cancel: (id: string): Promise<AxiosResponse<ApiResponse<void>>> => api.post(`/swap-requests/${id}/cancel`),
+  decline: (id: string): Promise<AxiosResponse<ApiResponse<void>>> => api.post(`/swap-requests/${id}/reject`),
 
   getUserSwaps: (userId: string): Promise<AxiosResponse<ApiResponse<SwapRequest[]>>> =>
     api.get(`/swap-requests/user/${userId}`),
@@ -117,12 +125,12 @@ export const adminApi = {
   getDashboardStats: (): Promise<AxiosResponse<ApiResponse<DashboardStats>>> => api.get("/admin/stats"),
 
   getPendingBooks: (page = 1, limit = 20): Promise<AxiosResponse<PaginatedResponse<Book>>> =>
-    api.get("/admin/books/pending", { params: { page, limit } }),
+    api.get("/books/pending", { params: { page, limit } }),
 
-  approveBook: (id: string): Promise<AxiosResponse<ApiResponse<Book>>> => api.post(`/admin/books/${id}/approve`),
+  approveBook: (id: string): Promise<AxiosResponse<ApiResponse<Book>>> => api.patch(`/books/approve/${id}`),
 
   rejectBook: (id: string, reason?: string): Promise<AxiosResponse<ApiResponse<Book>>> =>
-    api.post(`/admin/books/${id}/reject`, { reason }),
+    api.patch(`/books/reject/${id}`, { reason }),
 }
 
 // Auth API

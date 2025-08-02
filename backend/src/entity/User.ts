@@ -2,11 +2,13 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
+  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { PreferenceType } from '../types/types';
 import { SwapRequest } from './SwapRequest';
@@ -69,21 +71,10 @@ export class Users {
   @Column({ type: 'decimal', precision: 9, scale: 6, nullable: true })
   longitude?: number;
 
-  @Column()
+  @CreateDateColumn()
   createdAt!: Date;
 
-  @Column()
+  @UpdateDateColumn()
   updatedAt!: Date;
 
-  @BeforeInsert()
-  setCreationDate() {
-    const now = new Date();
-    this.createdAt = now;
-    this.updatedAt = now;
-  }
-
-  @BeforeUpdate()
-  setUpdateDate() {
-    this.updatedAt = new Date();
-  }
 }

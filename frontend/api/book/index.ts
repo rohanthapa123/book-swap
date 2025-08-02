@@ -35,6 +35,22 @@ export const getBookApi = async () => {
     }
 };
 
+export const getAuthenticatedBookApi = async () => {
+    try {
+        const response = await myAxios.get("/books/authenticate", {
+            withCredentials: true,
+        });
+
+        return response.data;
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            throw new Error("Failed to get book data: " + error.message);
+        } else {
+            throw new Error("An unknown error occurred during book fetch.");
+        }
+    }
+};
+
 export const getBookByIdApi = async ({ id }: {
     id: string
 }) => {

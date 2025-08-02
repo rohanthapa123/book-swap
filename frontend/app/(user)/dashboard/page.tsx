@@ -1,17 +1,14 @@
 "use client"
 
 import { getOwnBookApi, getRecommendedBookApi } from "@/api/book"
+import { Book } from "@/app/(user)/page"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useApproveSwap, useBooks, useCancelSwap, useDeclineSwap, useSwaps, useUsers } from "@/lib/queries"
 import { useQuery } from "@tanstack/react-query"
 import { Bell, BookOpen, Clock, Plus, RefreshCw, ThumbsUp } from "lucide-react"
 import Link from "next/link"
-import useAuthStore from "@/store/useAuthStore"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { Book } from "@/app/page"
-import { useBooks, useSwaps, useUsers } from "@/lib/queries"
 
 export default function DashboardHome() {
   // In a real app, this data would come from your API
@@ -35,9 +32,26 @@ export default function DashboardHome() {
   })
 
 
+
   const { data: allBooksData, isLoading: booksLoading } = useBooks()
   const { data: usersData, isLoading: usersLoading } = useUsers()
   const { data: swapsData, isLoading: swapsLoading } = useSwaps()
+
+  const { mutate: approveSwap } = useApproveSwap()
+  const { mutate: cancelSwap } = useCancelSwap()
+  const { mutate: declineSwap } = useDeclineSwap()
+
+  const handleApprove = (id: string) => {
+    approveSwap({ id })
+  }
+
+  const handleCancel = (id: string) => {
+    cancelSwap({ id })
+  }
+
+  const handleDecline = (id: string) => {
+    declineSwap({ id })
+  }
 
   console.log(allBooksData, usersData, swapsData)
 
@@ -99,12 +113,12 @@ export default function DashboardHome() {
               Browse Books
             </Link>
           </Button>
-          <Button asChild variant="outline" className="border-amber-700 text-amber-700 hover:bg-amber-50">
+          {/* <Button asChild variant="outline" className="border-amber-700 text-amber-700 hover:bg-amber-50">
             <Link href="/dashboard/swaps">
               <RefreshCw className="mr-2 h-4 w-4" />
               Manage Swaps
             </Link>
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -196,53 +210,79 @@ export default function DashboardHome() {
 
           {/* Requests List */}
           <div className="space-y-4">
-            {swapsData && Array.isArray(swapsData) && swapsData?.length > 0 ? (
-              swapsData?.map((request) => (
-                <Card key={request.id} className="overflow-hidden">
-                  <div className="flex flex-col p-4 sm:flex-row sm:items-center">
-                    <div className="mb-4 flex sm:mb-0 sm:mr-4">
-                      <div className="h-16 w-12 flex-shrink-0 overflow-hidden bg-amber-100">
-                        <img
-                          src={request.bookCoverUrl || "/placeholder.svg"}
-                          alt={request.bookTitle}
-                          className="h-full w-full object-cover"
-                        />
+            {swapsData && Array.isArray(swapsData.data) && swapsData.data.length > 0 ? (
+              swapsData.data.map((request: any) => {
+                const backendHost = process.env.NEXT_PUBLIC_BACKEND_HOST || "";
+
+                const bookCoverUrl = request.bookRequested?.image
+                  ? `${backendHost}${request.bookRequested.image}`
+                  : "/placeholder.svg";
+
+                const bookTitle = request.bookRequested?.title || "Unknown Book";
+                const bookAuthor = request.bookRequested?.author || "Unknown Author";
+
+                const currentUserId = "57da85d6-fbbc-4b34-bc39-4637f404ab61"; // replace with your actual user id from context/auth
+                const isRequester = request.requester?.id === currentUserId;
+                const type = isRequester ? "outgoing" : "incoming";
+
+                const otherUser = isRequester
+                  ? request.receiver?.name || "Unknown User"
+                  : request.requester?.name || "Unknown User";
+
+                return (
+                  <Card key={request.id} className="overflow-hidden">
+                    <div className="flex flex-col p-4 sm:flex-row sm:items-center">
+                      <div className="mb-4 flex sm:mb-0 sm:mr-4">
+                        <div className="h-16 w-12 flex-shrink-0 overflow-hidden bg-amber-100">
+                          <img
+                            src={bookCoverUrl}
+                            alt={bookTitle}
+                            className="h-full w-full object-cover"
+                            crossOrigin="use-credentials"
+                          />
+                        </div>
+                        <div className="ml-4">
+                          <h3 className="font-medium">{bookTitle}</h3>
+                          <p className="text-sm text-gray-600">by {bookAuthor}</p>
+                          <p className="text-xs text-amber-700">
+                            {type === "incoming" ? "From" : "To"}: {otherUser}
+                          </p>
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <h3 className="font-medium">{request.bookTitle}</h3>
-                        <p className="text-sm text-gray-600">by {request.bookAuthor}</p>
-                        <p className="text-xs text-amber-700">
-                          {request.type === "incoming" ? "From" : "To"}: {request.otherUser}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-1 flex-col space-y-2 sm:flex-row sm:items-center sm:justify-end sm:space-x-2 sm:space-y-0">
-                      {request.type === "incoming" ? (
-                        <>
-                          <Button size="sm" className="bg-amber-700 hover:bg-amber-800">
-                            Accept
-                          </Button>
+                      <div className="flex flex-1 flex-col space-y-2 sm:flex-row sm:items-center sm:justify-end sm:space-x-2 sm:space-y-0">
+                        {request.status === 'cancelled' ? "Cancelled" : type === "incoming" ? (
+                          <>
+                            <Button size="sm" className="bg-amber-700 hover:bg-amber-800"
+                              onClick={() => { handleApprove(request.id) }}
+                            >
+                              Accept
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-amber-700 text-amber-700 hover:bg-amber-50"
+                              onClick={() => { handleDecline(request.id) }}
+
+                            >
+                              Decline
+                            </Button>
+                          </>
+                        ) : (
                           <Button
                             size="sm"
                             variant="outline"
                             className="border-amber-700 text-amber-700 hover:bg-amber-50"
+                            onClick={() => { handleCancel(request.id) }}
+
                           >
-                            Decline
+                            Cancel Request
                           </Button>
-                        </>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-amber-700 text-amber-700 hover:bg-amber-50"
-                        >
-                          Cancel Request
-                        </Button>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))
+                  </Card>
+                );
+              })
             ) : (
               <Card className="p-8 text-center">
                 <RefreshCw className="mx-auto mb-4 h-12 w-12 text-amber-300" />
@@ -254,6 +294,7 @@ export default function DashboardHome() {
               </Card>
             )}
           </div>
+
         </TabsContent>
 
         {/* Recommendations Tab */}
@@ -270,6 +311,7 @@ export default function DashboardHome() {
                     src={book.image ? `${process.env.NEXT_PUBLIC_BACKEND_HOST}${book.image}` : "/placeholder.svg"}
                     alt={book.title}
                     className="h-full w-full object-cover"
+                    crossOrigin="use-credentials"
                   />
                 </div>
                 <CardContent className="p-4">

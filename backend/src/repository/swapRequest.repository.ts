@@ -15,10 +15,28 @@ export class SwapRequestRepository {
   }
 
   async findAll(): Promise<SwapRequest[]> {
-    return this.repo.find({
-      relations: ['requester', 'receiver', 'bookRequested', 'bookOffered'],
-    });
+    return this.repo
+      .createQueryBuilder('swapRequest')
+      .leftJoinAndSelect('swapRequest.requester', 'requester')
+      .leftJoinAndSelect('swapRequest.receiver', 'receiver')
+      .leftJoinAndSelect('swapRequest.bookRequested', 'bookRequested')
+      .leftJoinAndSelect('swapRequest.bookOffered', 'bookOffered')
+      .getMany();
   }
+
+
+  async findAllRelatedToMe(id: string): Promise<SwapRequest[]> {
+  return this.repo
+    .createQueryBuilder('swapRequest')
+    .leftJoinAndSelect('swapRequest.requester', 'requester')
+    .leftJoinAndSelect('swapRequest.receiver', 'receiver')
+    .leftJoinAndSelect('swapRequest.bookRequested', 'bookRequested')
+    .leftJoinAndSelect('swapRequest.bookOffered', 'bookOffered')
+    .where('requester.id = :id', { id })
+    .orWhere('receiver.id = :id', { id })
+    .getMany();
+}
+
 
   async findById(id: string): Promise<SwapRequest | null> {
     return this.repo.findOne({

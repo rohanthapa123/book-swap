@@ -11,6 +11,8 @@ router.post('/', authenticate, controller.create);
 // 📄 Get all swap requests (admin or user)
 router.get('/', authenticate, controller.findAll);
 
+router.get('/me', authenticate, controller.findAllRelatedToMe);
+
 // 🔍 Get one by ID
 router.get('/:id', authenticate, controller.findById);
 

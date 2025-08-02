@@ -15,10 +15,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, BookOpen, User, Star, ShieldCheck } from "lucide-react"
+import { ArrowLeft, BookOpen, User, Star, ShieldCheck, AlertCircle, CheckCircle } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { getBookByIdApi } from "@/api/book"
 import useAuthStore from "@/store/useAuthStore"
+import { useCreateSwapRequest } from "@/lib/queries"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import SwapRequestDialog from "@/components/swap/swap-request-dialog"
 
 export default function BookDetailPage() {
   const params = useParams()
@@ -37,13 +40,42 @@ export default function BookDetailPage() {
   const [swapMessage, setSwapMessage] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSwapRequest = async () => {
-    setIsSubmitting(true)
+  const [successMessage, setSuccessMessage] = useState("")
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsSubmitting(false)
-    setIsSwapDialogOpen(false)
-    alert("Swap request sent successfully!")
+  // Swap request mutation
+  const createSwapMutation = useCreateSwapRequest({
+    onSuccess: () => {
+      setIsSwapDialogOpen(false)
+      setSuccessMessage("Swap request sent successfully! The book owner will be notified.")
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMessage(""), 5000)
+    },
+    onError: (error) => {
+      console.error("Failed to create swap request:", error)
+    },
+  })
+
+
+
+
+  const handleSwapRequest = (data1: { offeredBookId: string; message: string }) => {
+    if (!data1) return
+
+    createSwapMutation.mutate({
+      bookId: data.id,
+      offeredBookId: data1.offeredBookId,
+      message: data1.message,
+    })
+
+
+  }
+
+  const canRequestSwap = () => {
+    if (!isAuthenticated) return false
+
+    // Book must be approved
+    if (data?.approvalRequest?.status !== "approved") return false
+    return true
   }
 
   if (isLoading) {
@@ -88,6 +120,15 @@ export default function BookDetailPage() {
           Back to Books
         </Link>
       </Button>
+
+      {/* Success Message */}
+      {successMessage && (
+        <Alert className="mb-6 border-green-200 bg-green-50">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-800">{successMessage}</AlertDescription>
+        </Alert>
+      )}
+
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
         {/* Book Cover */}
@@ -153,49 +194,45 @@ export default function BookDetailPage() {
               </div>
             </CardContent>
             <CardFooter>
-              {isAuthenticated ? <Dialog open={isSwapDialogOpen} onOpenChange={setIsSwapDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="w-full bg-amber-700 hover:bg-amber-800">Request to Swap</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Request to Swap</DialogTitle>
-                    <DialogDescription>
-                      Send a message to {owner?.name || "the owner"} to request swapping "{title}".
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <label htmlFor="message" className="text-sm font-medium">
-                        Your Message
-                      </label>
-                      <Textarea
-                        id="message"
-                        placeholder="Hi! I'm interested in swapping this book. Would you like to see my collection?"
-                        value={swapMessage}
-                        onChange={(e) => setSwapMessage(e.target.value)}
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsSwapDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button
-                      className="bg-amber-700 hover:bg-amber-800"
-                      onClick={handleSwapRequest}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Sending..." : "Send Request"}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog> : <Link href={"/auth/login"}><Button className="w-full bg-amber-700 hover:bg-amber-800">Request to Swap</Button></Link>}
+              {!isAuthenticated ? (
+                <div className="w-full space-y-2">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>You need to be logged in to request book swaps.</AlertDescription>
+                  </Alert>
+                  <Button asChild className="w-full bg-amber-700 hover:bg-amber-800">
+                    <Link href="/login">Login to Request Swap</Link>
+                  </Button>
+                </div>
+              ) : !canRequestSwap() ? (
+                <div className="w-full">
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      {data?.approvalRequest?.status !== "approved"
+                        ? "This book is not available for swapping yet."
+                        : "This book is not available for swapping."}
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              ) : (
+                <Button className="w-full bg-amber-700 hover:bg-amber-800" onClick={() => setIsSwapDialogOpen(true)}>
+                  Request Book Swap
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </div>
       </div>
+      {data && (
+        <SwapRequestDialog
+          isOpen={isSwapDialogOpen}
+          onClose={() => setIsSwapDialogOpen(false)}
+          targetBook={data}
+          onSubmit={handleSwapRequest}
+          isSubmitting={createSwapMutation.isPending}
+        />
+      )}
     </div>
   )
 }

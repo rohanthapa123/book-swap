@@ -10,6 +10,8 @@ const router = express.Router();
 
 // 📚 Publicly fetch all books
 router.get('/', controller.findAll);
+router.get('/pending', controller.findPending);
+router.get('/authenticate', authenticate, controller.findAllAuthenticate);
 
 // 📝 Create a new book (authenticated users only)
 router.post('/', authenticate, upload.single("image"), fileUrlMiddleware("image", false), authenticate, controller.create);
@@ -23,6 +25,8 @@ router.put('/:id', authenticate, upload.single("image"), fileUrlMiddleware("imag
 
 // ❌ Delete a book
 router.delete('/:id', authenticate, controller.delete);
+router.patch('/approve/:id', authenticate, controller.approve);
+router.patch('/reject/:id', authenticate, controller.reject);
 
 
 export { router as bookRouter };

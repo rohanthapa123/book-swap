@@ -9,7 +9,13 @@ export class BookService {
   }
 
   async findAll(limit: number, offset: number): Promise<Book[]> {
-    return this.bookRepo.findAll();
+    return this.bookRepo.findAll(limit, offset);
+  }
+  async findPending(limit: number, offset: number): Promise<Book[]> {
+    return this.bookRepo.findPending(limit, offset);
+  }
+  async findAllAuthenticate(limit: number, offset: number, userId: string): Promise<Book[]> {
+    return this.bookRepo.findAllAuthenticate(userId, limit, offset);
   }
 
   async findById(id: string): Promise<Book> {
@@ -38,5 +44,16 @@ export class BookService {
     const deleted = await this.bookRepo.delete(id);
     if (!deleted) throw new Error('Book not found for deletion');
     return deleted;
+  }
+
+  async approve(id: string): Promise<{ message: string }> {
+    const approved = await this.bookRepo.approve(id);
+    if (!approved) throw new Error('Book not found for deletion');
+    return approved;
+  }
+  async reject(id: string): Promise<{ message: string }> {
+    const approved = await this.bookRepo.reject(id);
+    if (!approved) throw new Error('Book not found for deletion');
+    return approved;
   }
 }

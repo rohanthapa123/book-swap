@@ -56,7 +56,7 @@ export class AuthController {
         return;
       }
 
-      let admin = email === 'thaparohan2019@gmail.com';
+      let admin = email === 'nidhiisadmin@gmail.com';
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -93,5 +93,15 @@ export class AuthController {
       res.status(401).json({ message: "Not authenticated" });
     }
   };
+
+  getAllUsers = async (_req: Request, res: Response) => {
+    try {
+      const users = await this.userService.findAll(1000, 0);
+      res.status(200).json({ data: users });
+    } catch (error: any) {
+      logger.error('Get All Users Error:', error.message);
+      res.status(500).json({ message: 'Failed to fetch users', error: error.message });
+    }
+  }
 
 }

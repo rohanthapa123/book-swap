@@ -6,9 +6,13 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Users } from './User';
 import { BookApprovalRequest } from './BookApprovalRequest';
+import { SwapRequest } from './SwapRequest';
 
 @Entity()
 export class Book {
@@ -54,22 +58,15 @@ export class Book {
   @OneToOne(() => BookApprovalRequest, (approval) => approval.book)
   approvalRequest!: BookApprovalRequest;
 
+  @OneToMany(() => SwapRequest, (swap) => swap.bookOffered)
+  swapsOffered?: SwapRequest[];
 
-  @Column()
+  @OneToMany(() => SwapRequest, (swap) => swap.bookRequested)
+  swapsRequested?: SwapRequest[];
+  @CreateDateColumn()
   createdAt!: Date;
 
-  @Column()
+  @UpdateDateColumn()
   updatedAt!: Date;
 
-  @BeforeInsert()
-  setCreationDate() {
-    const now = new Date();
-    this.createdAt = now;
-    this.updatedAt = now;
-  }
-
-  @BeforeUpdate()
-  setUpdateDate() {
-    this.updatedAt = new Date();
-  }
 }

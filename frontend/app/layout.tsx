@@ -1,13 +1,12 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import AuthProvider from "@/hooks/auth-provider"
 import { QueryProvider } from "@/lib/ReactQuery/ReactQueryProvider"
 import { getSessionContext } from "@/lib/serverContext"
-import AuthProvider from "@/hooks/auth-provider"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import type React from "react"
+import "./globals.css"
+import ClientAuthHydration from "@/components/ClientAuthHydration"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -33,13 +32,8 @@ export default async function RootLayout({
           <AuthProvider user={user?.data}>
 
             <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-
-              <div className="flex min-h-screen flex-col">
-                <Navbar authenticated={authenticated} />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
-
+              <ClientAuthHydration user={authenticated ? user?.data : null} />
+              {children}
             </ThemeProvider>
           </AuthProvider>
         </QueryProvider>

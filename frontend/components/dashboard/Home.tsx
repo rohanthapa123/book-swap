@@ -10,7 +10,7 @@ import Link from "next/link"
 import useAuthStore from "@/store/useAuthStore"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { Book } from "@/app/page"
+import { Book } from "@/app/(user)/page"
 import Image from "next/image"
 
 export const DashboardHome = () => {
